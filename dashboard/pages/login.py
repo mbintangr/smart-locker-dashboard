@@ -1,11 +1,7 @@
 import streamlit as st
+import requests
 
-
-# Dummy user credentials for login
-users_db = {
-    "user1@example.com": {"password": "password123", "name": "User One"},
-    "admin@example.com": {"password": "adminpass", "name": "Admin"},
-}
+API_LOGIN_URL ="https://n8n.mbintangr.com/webhook/login"
 
 st.set_page_config(
     page_title="GuaLock",
@@ -16,7 +12,7 @@ st.set_page_config(
 # Initialize session state
 st.session_state.logged_in = False
 st.session_state.user_name = ""
-st.session_state.login_email = ""
+st.session_state.login_username = ""
 st.session_state.login_password = ""
 
 st.markdown("#")
@@ -32,7 +28,7 @@ with col1:
     st.markdown("### Apa itu GuaLock?")
     st.markdown("GuaLock adalah sistem Smart Locker inovatif yang memungkinkan Anda menyimpan dan mengambil barang kapan saja dengan metode autentikasi QR Code yang praktis dan aman. Tidak perlu lagi repot membawa kunci fisik atau mengingat kombinasi angka — cukup gunakan QR Code unik yang dikirimkan melalui website kami untuk membuka locker secara otomatis.")
 
-# Login form or welcome message
+# Login form
 with col2:
     with st.container(border=True):
         if not st.session_state.logged_in:
@@ -40,27 +36,43 @@ with col2:
             st.markdown("Sebelum gualock, lock in dulu ya ges")
 
             # Input fields
-            st.session_state.login_email = st.text_input("Email", placeholder="Email", autocomplete="",key="login_email_input")
-            st.session_state.login_password = st.text_input("Password", placeholder="Password",autocomplete="", type="password", key="login_password_input")
+            username = st.text_input("username", placeholder="username", key="login_username_input")
+            password = st.text_input("Password", placeholder="Password", type="password", key="login_password_input")
 
-            # Sign in button
-            in1, in2 = st.columns((1.5,6))
-            with in1:
+            col_btn1, col_btn2 = st.columns((1.5, 6))
+
+            with col_btn1:
                 if st.button("Sign in", key="signin_button"):
-                    email = st.session_state.login_email
-                    password = st.session_state.login_password
-
-                    if email in users_db and users_db[email]["password"] == password:
-                        st.session_state.logged_in = True
-                        st.session_state.user_name = users_db[email]["name"]
-                        st.switch_page("pages/main.py")
+                    if not username or not password:
+                        st.warning("Mohon isi username dan password.")
                     else:
-                        st.error("Invalid email or password. Please try again.")
+                        try:
+                            payload = {
+                                "username": username,
+                                "password": password
+                            }
+                            response = requests.post(API_LOGIN_URL, json=payload)
+
+                            if response.status_code == 200:
+                                data = response.json()
+                                st.session_state.logged_in = True
+                                st.session_state.user_name = data.get("username", "User")
+                                st.success(f"Welcome, {st.session_state.user_name}!")
+                                st.switch_page("pages/main.py")
+                            else:
+                                try:
+                                    err_msg = response.json().get("detail", "Login gagal.")
+                                except:
+                                    err_msg = "Terjadi kesalahan saat login."
+                                st.error(err_msg)
+
+                        except requests.exceptions.RequestException as e:
+                            st.error(f"Terjadi masalah koneksi ke server: {e}")
 
             # Link to register page
-            with in2:
+            with col_btn2:
                 st.page_link("pages/register.py", label="Doesn't have any account ?")
 
-# Empty column for spacing
+# Spacer column
 with col3:
     st.markdown("#")
