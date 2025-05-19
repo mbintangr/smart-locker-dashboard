@@ -4,6 +4,17 @@ import cv2
 import io
 from pyzbar import pyzbar
 
+st.set_page_config(
+    page_title="GuaLock",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.switch_page("pages/login.py")
+    st.stop()
+
 def decode_qr_code(frame):
     decoded_objects = pyzbar.decode(frame)
     qr_codes = [obj.data.decode('utf-8') for obj in decoded_objects]
@@ -66,9 +77,14 @@ def scan_qr_code():
 
 st.title("🔲 QR Code Generator & Reader")
 
-st.sidebar.title("Select Mode")
+with st.sidebar:
+    st.title("Welcome, %s" % st.session_state.user_name)
+    st.markdown("## Select Mode")
+    mode = st.radio("Choose an option:", ("Read QR Code", "Generate QR Code"))
+    st.divider()
+    st.page_link("pages/login.py",label=":material/home: Logout", use_container_width=True)
 
-mode = st.sidebar.radio("Choose an option:", ("Read QR Code", "Generate QR Code"))
+
 
 if mode == "Generate QR Code":
     st.header("🧾 Generate QR Code")
