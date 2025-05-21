@@ -33,7 +33,7 @@ with st.container(border=True):
                         "password": password,
                         "username": username
                     }
-                    response = requests.post(API_URL, json=payload)
+                    response = requests.post(API_URL, json=payload, verify=False)
 
                     if response.status_code == 201 or response.status_code == 200:
                         st.success("Registrasi berhasil! Silakan login.")

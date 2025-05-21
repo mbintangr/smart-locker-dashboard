@@ -51,7 +51,7 @@ with col2:
                                 "username": username,
                                 "password": password
                             }
-                            response = requests.post(API_LOGIN_URL, json=payload)
+                            response = requests.post(API_LOGIN_URL, json=payload, verify=False)
 
                             if response.status_code == 200:
                                 data = response.json()
