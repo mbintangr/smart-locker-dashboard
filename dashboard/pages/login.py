@@ -52,13 +52,17 @@ with col2:
                                 "password": password
                             }
                             response = requests.post(API_LOGIN_URL, json=payload, verify=False)
+                            
 
                             if response.status_code == 200:
                                 data = response.json()
-                                st.session_state.logged_in = True
-                                st.session_state.user_name = data.get("username", "User")
-                                st.success(f"Welcome, {st.session_state.user_name}!")
-                                st.switch_page("pages/main.py")
+                                if data.get("message") == "Logged In!":
+                                    st.session_state.logged_in = True
+                                    st.session_state.user_name = data.get("username", "User")
+                                    st.success(f"Welcome, {st.session_state.user_name}!")
+                                    st.switch_page("pages/main.py")
+                                else:
+                                    st.error("Terjadi kesalahan saat login.")
                             else:
                                 try:
                                     err_msg = response.json().get("detail", "Login gagal.")
