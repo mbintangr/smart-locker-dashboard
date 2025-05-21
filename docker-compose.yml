@@ -3,7 +3,7 @@ services:
     build:
       context: ./dashboard
     ports:
-      - "8501:8501"
+      - "9003:8501"
     volumes:
       - ./dashboard:/app
     devices:
