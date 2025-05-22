@@ -3,6 +3,8 @@ import qrcode
 import cv2
 import io
 from pyzbar import pyzbar
+import RPi.GPIO as GPIO
+import time
 
 st.set_page_config(
     page_title="GuaLock",
@@ -10,6 +12,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
+SERVO_PIN = 18
+
+def set_angle(angle):
+    """Rotate the servo to a specific angle."""
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(SERVO_PIN, GPIO.OUT)
+
+    pwm = GPIO.PWM(SERVO_PIN, 50)
+    pwm.start(0)
+
+    try:
+        duty = angle / 18 + 2.5
+        pwm.ChangeDutyCycle(duty)
+        time.sleep(0.5)
+        pwm.ChangeDutyCycle(0)
+        time.sleep(0.5)
+    finally:
+        pwm.stop()
+        GPIO.cleanup()
+
+def open_locker():
+    set_angle(90)
+
+def close_locker():
+    set_angle(0)
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.switch_page("pages/login.py")
@@ -64,6 +92,9 @@ def scan_qr_code():
         if st.button("Submit Confirmation"):
             if user_choice == "Yes":
                 st.session_state.decoded_message = st.session_state.pending_code
+                open_locker()
+                time.sleep(3)
+                close_locker()
                 st.success(f"✅ Confirmed QR Code: {st.session_state.decoded_message}")
             else:
                 st.warning("❌ Rejected QR Code. Please try again.")

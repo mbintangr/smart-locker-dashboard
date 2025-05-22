@@ -4,7 +4,7 @@ FROM python:3.12.4-slim
 # Set working directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 libzbar0
+RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 libzbar0 python3-rpi.gpio
 
 # Install dependencies
 COPY requirements.txt .
