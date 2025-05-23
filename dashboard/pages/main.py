@@ -86,7 +86,7 @@ def scan_qr_code():
 
     if st.session_state.confirming:
         st.info(f"Detected QR Code: `{st.session_state.pending_code}`")
-        open_locker_choice = st.radio("Open the locker?", ["Yes", "No"], key="confirm_radio")
+        open_locker_choice = st.radio("Open the locker?", ["Yes", "No"], key="open_locker_radio")
 
         if st.button("Open Locker", key="open_locker_button"):
             if open_locker_choice == "Yes":
@@ -104,7 +104,7 @@ def scan_qr_code():
             st.session_state.decoded_message = None
             st.rerun(scope="fragment")
 
-        close_locker_choice = st.radio("Close the locker?", ["Yes", "No"], key="confirm_radio")
+        close_locker_choice = st.radio("Close the locker?", ["Yes", "No"], key="close_locker_radio")
         if st.button("Close Locker", key="close_locker_button"):
             if close_locker_choice == "Yes":
                 st.session_state.decoded_message = st.session_state.pending_code
