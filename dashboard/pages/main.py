@@ -3,8 +3,9 @@ import qrcode
 import cv2
 import io
 from pyzbar import pyzbar
-import RPi.GPIO as GPIO
+from gpiozero import Servo
 import time
+from time import sleep
 
 st.set_page_config(
     page_title="GuaLock",
@@ -15,23 +16,20 @@ st.set_page_config(
 
 SERVO_PIN = 18
 
+servo = Servo(SERVO_PIN, min_pulse_width=0.0005, max_pulse_width=0.0025)
+
 def set_angle(angle):
-    """Rotate the servo to a specific angle."""
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(SERVO_PIN, GPIO.OUT)
-
-    pwm = GPIO.PWM(SERVO_PIN, 50)
-    pwm.start(0)
-
-    try:
-        duty = angle / 18 + 2.5
-        pwm.ChangeDutyCycle(duty)
-        time.sleep(0.5)
-        pwm.ChangeDutyCycle(0)
-        time.sleep(0.5)
-    finally:
-        pwm.stop()
-        GPIO.cleanup()
+    """Rotate the servo to a specific angle using gpiozero."""
+    # Clamp angle between 0 and 180
+    angle = max(0, min(180, angle))
+    
+    # Map angle (0-180) to gpiozero's -1 to 1 range
+    normalized = (angle - 90) / 90  # -1 (0°), 0 (90°), +1 (180°)
+    
+    servo.value = -1
+    sleep(0.5)  # Let the servo move
+    servo.value = 1  # Detach servo signal to stop holding
+    sleep(0.5)
 
 def open_locker():
     set_angle(90)
