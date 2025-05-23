@@ -14,22 +14,21 @@ st.set_page_config(
 )
 
 
-SERVO_PIN = 18
-
-servo = Servo(SERVO_PIN, min_pulse_width=0.0005, max_pulse_width=0.0025)
-
 def set_angle(angle):
     """Rotate the servo to a specific angle using gpiozero."""
+
+    SERVO_PIN = 18
+    servo = Servo(SERVO_PIN, min_pulse_width=0.0005, max_pulse_width=0.0025)
+
     # Clamp angle between 0 and 180
     angle = max(0, min(180, angle))
     
     # Map angle (0-180) to gpiozero's -1 to 1 range
-    normalized = (angle - 90) / 90  # -1 (0°), 0 (90°), +1 (180°)
+    normalized = (angle - 90) / 90
     
     servo.value = normalized
-    sleep(0.5)  # Give servo time to reach position
-    # Optional: detach by setting to None if servo jitter is a concern
-    servo.value = None
+    sleep(0.5)
+    servo.value = None  # Detach servo
 
 def open_locker():
     set_angle(90)
