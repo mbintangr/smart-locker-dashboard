@@ -26,10 +26,10 @@ def set_angle(angle):
     # Map angle (0-180) to gpiozero's -1 to 1 range
     normalized = (angle - 90) / 90  # -1 (0°), 0 (90°), +1 (180°)
     
-    servo.value = -1
-    sleep(0.5)  # Let the servo move
-    servo.value = 1  # Detach servo signal to stop holding
-    sleep(0.5)
+    servo.value = normalized
+    sleep(0.5)  # Give servo time to reach position
+    # Optional: detach by setting to None if servo jitter is a concern
+    servo.value = None
 
 def open_locker():
     set_angle(90)
