@@ -55,6 +55,8 @@ if "confirming" not in st.session_state:
     st.session_state.confirming = False
 if "pending_code" not in st.session_state:
     st.session_state.pending_code = None
+if "door_state" not in st.session_state:
+    st.session_state.door_state = False
     
 @st.fragment
 def scan_qr_code():
@@ -84,15 +86,15 @@ def scan_qr_code():
 
     if st.session_state.confirming:
         st.info(f"Detected QR Code: `{st.session_state.pending_code}`")
-        user_choice = st.radio("Is this correct?", ["Yes", "No"], key="confirm_radio")
+        open_locker_choice = st.radio("Open the locker?", ["Yes", "No"], key="confirm_radio")
 
-        if st.button("Submit Confirmation"):
-            if user_choice == "Yes":
+        if st.button("Open Locker", key="open_locker_button"):
+            if open_locker_choice == "Yes":
                 st.session_state.decoded_message = st.session_state.pending_code
                 open_locker()
-                time.sleep(3)
-                close_locker()
-                st.success(f"✅ Confirmed QR Code: {st.session_state.decoded_message}")
+                # time.sleep(3)
+                # close_locker()
+                st.success(f"✅ Opened Locker ID: {st.session_state.decoded_message}")
             else:
                 st.warning("❌ Rejected QR Code. Please try again.")
 
@@ -102,6 +104,20 @@ def scan_qr_code():
             st.session_state.decoded_message = None
             st.rerun(scope="fragment")
 
+        close_locker_choice = st.radio("Close the locker?", ["Yes", "No"], key="confirm_radio")
+        if st.button("Close Locker", key="close_locker_button"):
+            if close_locker_choice == "Yes":
+                st.session_state.decoded_message = st.session_state.pending_code
+                close_locker()
+                st.success(f"✅ Closed Locker ID: {st.session_state.decoded_message}")
+            else:
+                st.warning("❌ Rejected QR Code. Please try again.")
+
+            st.session_state.confirming = False
+            st.session_state.pending_code = None
+            st.session_state.scanning = True
+            st.session_state.decoded_message = None
+            st.rerun(scope="fragment")
 
 st.title("🔲 QR Code Generator & Reader")
 
