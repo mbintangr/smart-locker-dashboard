@@ -56,15 +56,50 @@ if "confirming" not in st.session_state:
 if "pending_code" not in st.session_state:
     st.session_state.pending_code = None
     
+# @st.fragment
+# def scan_qr_code():
+
+#     # if st.session_state.scanning and not st.session_state.confirming:
+#     if st.session_state.scanning:
+#         cap = cv2.VideoCapture(0)
+#         stframe = st.empty()
+
+#         # while st.session_state.scanning and not st.session_state.confirming:
+#         while st.session_state.scanning:
+#             ret, frame = cap.read()
+#             if not ret:
+#                 st.write("Failed to capture image.")
+#                 break
+
+#             qr_codes = decode_qr_code(frame)
+#             stframe.image(frame, channels="BGR")
+            
+#             if qr_codes:
+#                 current_code = qr_codes[0]
+#                 res = requests.get("https://n8n.mbintangr.com/webhook/checkout", data={"id": current_code}, verify=False)
+#                 res = res.json()
+#                 if res.get("message") == "Success!":
+#                     open_locker()
+#                     st.toast("Success! QR Code Valid.", icon="🎉")
+#                     if current_code != st.session_state.decoded_message:
+#                         # st.session_state.confirming = True
+#                         st.session_state.pending_code = current_code
+#                         break
+#                     st.rerun(scope="fragment")
+#                 else:
+#                     st.toast("Failed! QR Code Invalid.", icon="🚫")
+#                     st.rerun(scope="fragment")
+#                     break
+        
+#         cap.release()
+#         cv2.destroyAllWindows()
+
 @st.fragment
 def scan_qr_code():
-
-    # if st.session_state.scanning and not st.session_state.confirming:
-    if st.session_state.scanning:
+    if st.session_state.get("scanning", False):
         cap = cv2.VideoCapture(0)
         stframe = st.empty()
 
-        # while st.session_state.scanning and not st.session_state.confirming:
         while st.session_state.scanning:
             ret, frame = cap.read()
             if not ret:
@@ -73,26 +108,43 @@ def scan_qr_code():
 
             qr_codes = decode_qr_code(frame)
             stframe.image(frame, channels="BGR")
-            
+
             if qr_codes:
                 current_code = qr_codes[0]
-                res = requests.get("https://n8n.mbintangr.com/webhook/checkout", data={"id": current_code}, verify=False)
+                res = requests.get(
+                    "https://n8n.mbintangr.com/webhook/checkout",
+                    data={"id": current_code},
+                    verify=False
+                )
                 res = res.json()
+
                 if res.get("message") == "Success!":
                     open_locker()
                     st.toast("Success! QR Code Valid.", icon="🎉")
-                    if current_code != st.session_state.decoded_message:
-                        # st.session_state.confirming = True
-                        st.session_state.pending_code = current_code
-                        break
-                    st.rerun(scope="fragment")
                 else:
                     st.toast("Failed! QR Code Invalid.", icon="🚫")
-                    st.rerun(scope="fragment")
-                    break
-        
+
+                # Restart scanning for next user
+                st.session_state.scanning = False  # stop fragment
+                st.session_state.restart_scan = True  # trigger restart
+                break
+
         cap.release()
         cv2.destroyAllWindows()
+
+
+# Outside the fragment, e.g. in main.py or your main Streamlit app logic:
+if "scanning" not in st.session_state:
+    st.session_state.scanning = True
+
+if st.session_state.get("restart_scan", False):
+    st.session_state.restart_scan = False
+    st.session_state.scanning = True  # re-trigger scan
+
+# Always call the fragment if scanning is active
+if st.session_state.scanning:
+    scan_qr_code()
+
 
     # if st.session_state.confirming:
     #     st.info(f"Detected QR Code: `{st.session_state.pending_code}`")
