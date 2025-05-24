@@ -12,6 +12,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+def get_distance(locker_id):
+    from gpiozero import DistanceSensor
+    
+    if locker_id == '1':
+        us = DistanceSensor(echo=12, trigger=16, max_distance=2.0)
+        distance = us.distance * 100
+    elif locker_id == '2':
+        us = DistanceSensor(echo=6, trigger=19, max_distance=2.0)
+        distance = us.distance * 100
+    
+    return distance
 
 def set_angle(angle, servo_pin):
     """Rotate the servo to a specific angle using gpiozero."""
@@ -146,13 +157,15 @@ if mode == "Register Locker":
         
     if st.button("Register"):
         if collector and selected_locker:
-            res = requests.post(
-                url='https://n8n.mbintangr.com/webhook/checkin',
-                data={"collector": collector, "locker_id": selected_locker},
-                verify=False
-            )
-            st.toast("Success! Locker Registered.", icon="🎉")
-            close_locker(selected_locker)
+            if get_distance(selected_locker) < 30:
+                print(get_distance(selected_locker))
+                res = requests.post(
+                    url='https://n8n.mbintangr.com/webhook/checkin',
+                    data={"collector": collector, "locker_id": selected_locker},
+                    verify=False
+                )
+                st.toast("Success! Locker Registered.", icon="🎉")
+                close_locker(selected_locker)
         else:
             st.error("Please fill in all fields.")
         st.rerun()
