@@ -87,10 +87,10 @@ def scan_qr_code():
             res = res.json()
 
             if res.get("message") == "Success!":
-                open_locker()
+                open_locker(res.get("locker_id"))
                 st.toast("Success! QR Code Valid.", icon="🎉")
             else:
-                close_locker()
+                close_locker(res.get("locker_id"))
                 st.toast("Failed! QR Code Invalid.", icon="🚫")
                 
             st.rerun()
