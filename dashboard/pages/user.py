@@ -20,7 +20,7 @@ API_URL = "https://n8n.mbintangr.com/webhook/get-collector-data"
 response = requests.request(
     "GET",
     API_URL,
-    data=json.dumps({"collector_id": "a"}),
+    data=json.dumps({"collector_id": st.session_state.user_name}),
     headers={"Content-Type": "application/json"},
     verify=False  # Set ke True jika menggunakan HTTPS yang valid
 )
