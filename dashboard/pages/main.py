@@ -85,10 +85,12 @@ def scan_qr_code():
                         # st.session_state.confirming = True
                         st.session_state.pending_code = current_code
                         break
+                    st.rerun(scope="fragment")
                 else:
                     st.toast("Failed! QR Code Invalid.", icon="🚫")
+                    st.rerun(scope="fragment")
                     break
-
+        
         cap.release()
         cv2.destroyAllWindows()
 
