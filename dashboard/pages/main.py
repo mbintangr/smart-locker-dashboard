@@ -144,7 +144,7 @@ if mode == "Register Locker":
             st.error("No available lockers.")
     else:
         st.error("No available lockers.")
-    
+        
     if st.button("Register"):
         if collector and selected_locker:
             res = requests.post(
@@ -153,9 +153,10 @@ if mode == "Register Locker":
                 verify=False
             )
             st.toast("Success! Locker Registered.", icon="🎉")
-            st.rerun()
+            # 
         else:
             st.error("Please fill in all fields.")
+        st.rerun()
         
 
 elif mode == "Scan QR Code":
