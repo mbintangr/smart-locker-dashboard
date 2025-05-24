@@ -94,7 +94,6 @@ def scan_qr_code():
                 if res.get("locker_id") == "":
                     st.toast("Failed! QR Code Invalid.", icon="🚫")
                 else:
-                    close_locker(res.get("locker_id"))
                     st.toast("Failed! QR Code not found.", icon="🚫")
                 
             st.rerun()
@@ -153,7 +152,7 @@ if mode == "Register Locker":
                 verify=False
             )
             st.toast("Success! Locker Registered.", icon="🎉")
-            # 
+            close_locker(selected_locker)
         else:
             st.error("Please fill in all fields.")
         st.rerun()
