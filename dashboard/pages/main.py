@@ -109,7 +109,7 @@ with st.sidebar:
     st.markdown("## Select Mode")
     mode = st.radio("Choose an option:", ("Scan QR Code", "Register Locker"))
     st.divider()
-    st.page_link("pages/login.py",label=":material/home: Logout", use_container_width=True)
+    st.page_link("pages/login.py",label=":material/logout: Logout", use_container_width=True)
 
 if mode == "Register Locker":
     st.header("🧾 Register Locker")
