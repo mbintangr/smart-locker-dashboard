@@ -12,16 +12,64 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# def get_distance(locker_id):
+#     from gpiozero import DistanceSensor
+    
+#     if locker_id == '1':
+#         us = DistanceSensor(echo=12, trigger=16, max_distance=2.0)
+#         distance = us.distance * 100
+#     elif locker_id == '2':
+#         us = DistanceSensor(echo=6, trigger=19, max_distance=2.0)
+#         distance = us.distance * 100
+    
+#     return distance
+
 def get_distance(locker_id):
-    from gpiozero import DistanceSensor
-    
+    import RPi.GPIO as GPIO
+    import time
+
+    GPIO.setmode(GPIO.BCM)
+
     if locker_id == '1':
-        us = DistanceSensor(echo=12, trigger=16, max_distance=2.0)
-        distance = us.distance * 100
+        TRIG = 16
+        ECHO = 12
     elif locker_id == '2':
-        us = DistanceSensor(echo=6, trigger=19, max_distance=2.0)
-        distance = us.distance * 100
-    
+        TRIG = 19
+        ECHO = 6
+
+    GPIO.setup(TRIG, GPIO.OUT)
+    GPIO.setup(ECHO, GPIO.IN)
+
+    GPIO.output(TRIG, False)
+    time.sleep(0.1)
+
+    # Send 10us pulse to trigger
+    GPIO.output(TRIG, True)
+    time.sleep(0.00001)
+    GPIO.output(TRIG, False)
+
+    # Wait for echo to start
+    pulse_start = time.time()
+    timeout = time.time() + 0.04
+    while GPIO.input(ECHO) == 0:
+        pulse_start = time.time()
+        if pulse_start > timeout:
+            return 999  # Timeout
+
+    # Wait for echo to end
+    pulse_end = time.time()
+    timeout = time.time() + 0.04
+    while GPIO.input(ECHO) == 1:
+        pulse_end = time.time()
+        if pulse_end > timeout:
+            return 999  # Timeout
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150  # cm
+    distance = round(distance, 2)
+
+    GPIO.cleanup()
+
     return distance
 
 def set_angle(angle, servo_pin):
