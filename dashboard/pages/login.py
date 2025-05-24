@@ -1,7 +1,9 @@
 import streamlit as st
 import requests
+import json
 
 API_LOGIN_URL ="https://n8n.mbintangr.com/webhook/login"
+API_GET_USERS_URL = "https://n8n.mbintangr.com/webhook/get-all-user"
 
 st.set_page_config(
     page_title="GuaLock",
@@ -51,21 +53,33 @@ with col2:
                                 "username": username,
                                 "password": password
                             }
-                            response = requests.post(API_LOGIN_URL, json=payload, verify=False)
+                            login_response = requests.post(API_LOGIN_URL, json=payload, verify=False)
+                            user_response = requests.get(API_GET_USERS_URL, json=payload, verify=False)
                             
 
-                            if response.status_code == 200:
-                                data = response.json()
+                            if login_response.status_code == 200:
+                                data = login_response.json()
+                                users_data_raw = user_response.json()
                                 if data.get("message") == "Logged In!":
                                     st.session_state.logged_in = True
                                     st.session_state.user_name = data.get("username", "User")
                                     st.success(f"Welcome, {st.session_state.user_name}!")
-                                    st.switch_page("pages/main.py")
                                 else:
                                     st.error("Terjadi kesalahan saat login.")
+                                user_role = None
+                                for user in users_data_raw:
+                                    if user["username"] == st.session_state.user_name:
+                                        user_role = user["role"]
+                                        break
+                                if user_role == "user":
+                                    st.switch_page("pages/user.py")
+                                elif user_role == "admin":
+                                    st.switch_page("pages/main.py")
+                                else:
+                                    st.error("Role tidak diketahui.")
                             else:
                                 try:
-                                    err_msg = response.json().get("detail", "Login gagal.")
+                                    err_msg = login_response.json().get("detail", "Login gagal.")
                                 except:
                                     err_msg = "Terjadi kesalahan saat login."
                                 st.error(err_msg)
