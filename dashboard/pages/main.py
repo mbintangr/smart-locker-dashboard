@@ -96,6 +96,7 @@ if "pending_code" not in st.session_state:
 
 @st.fragment
 def scan_qr_code():
+    st.header("📷 Scan QR Code via Webcam")
     if st.session_state.get("scanning", False):
         cap = cv2.VideoCapture(0)
         stframe = st.empty()
@@ -122,6 +123,7 @@ def scan_qr_code():
                     open_locker()
                     st.toast("Success! QR Code Valid.", icon="🎉")
                 else:
+                    close_locker()
                     st.toast("Failed! QR Code Invalid.", icon="🚫")
 
                 # Restart scanning for next user
@@ -211,5 +213,4 @@ if mode == "Generate QR Code":
             st.warning("Please enter some text.")
 
 elif mode == "Read QR Code":
-    st.header("📷 Scan QR Code via Webcam")
     scan_qr_code()
