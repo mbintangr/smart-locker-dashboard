@@ -3,7 +3,6 @@ import qrcode
 import cv2
 import io
 from pyzbar import pyzbar
-from gpiozero import Servo
 from time import sleep
 import requests
 
@@ -16,6 +15,7 @@ st.set_page_config(
 
 def set_angle(angle, servo_pin):
     """Rotate the servo to a specific angle using gpiozero."""
+    from gpiozero import Servo
 
     servo = Servo(servo_pin, min_pulse_width=0.0005, max_pulse_width=0.0025)
 
@@ -107,27 +107,55 @@ st.title("🔲 QR Code Generator & Reader")
 with st.sidebar:
     st.title("Welcome, %s" % st.session_state.user_name)
     st.markdown("## Select Mode")
-    mode = st.radio("Choose an option:", ("Read QR Code", "Generate QR Code"))
+    mode = st.radio("Choose an option:", ("Scan QR Code", "Register Locker"))
     st.divider()
     st.page_link("pages/login.py",label=":material/logout: Logout", use_container_width=True)
 
-if mode == "Generate QR Code":
-    st.header("🧾 Generate QR Code")
-    qr_text = st.text_input("Enter text or URL:")
-    if st.button("Generate"):
-        if qr_text:
-            qr_img = qrcode.make(qr_text)
-
-            # Convert to BytesIO
-            buf = io.BytesIO()
-            qr_img.save(buf, format="PNG")
-            buf.seek(0)
-
-            st.image(buf, caption="Generated QR Code")
-            
-            # st.download_button("Download QR Code", qr_img)
+if mode == "Register Locker":
+    st.header("🧾 Register Locker")
+    res = requests.get(url='https://n8n.mbintangr.com/webhook/get-all-user', verify=False)
+    res = res.json()
+    
+    collector = None
+    if len(res) > 0:
+        users = []
+        for user in res:
+            if user.get("username"):
+                users.append(f'{user.get("username")}')
+        if len(users) > 0:
+            collector = st.selectbox("Select User", users)
         else:
-            st.warning("Please enter some text.")
+            st.error("Users not available.")
+    else:
+        st.error("Users not available.")
+        
+    res = requests.get(url='https://n8n.mbintangr.com/webhook/get-available-locker', verify=False)
+    res = res.json()
 
-elif mode == "Read QR Code":
+    selected_locker = None
+    if len(res) > 0:
+        available_lockers = []
+        for locker in res:
+            if locker.get("is_available"):
+                available_lockers.append(f'{locker.get("id")}')
+        if len(available_lockers) > 0:
+            selected_locker = st.selectbox("Select Locker", available_lockers)
+        else:
+            st.error("No available lockers.")
+    else:
+        st.error("No available lockers.")
+    
+    if st.button("Register"):
+        if collector and selected_locker:
+            res = requests.post(
+                url='https://n8n.mbintangr.com/webhook/checkin',
+                data={"collector": collector, "locker_id": selected_locker},
+                verify=False
+            )
+        else:
+            st.error("Please fill in all fields.")
+        
+        st.rerun()
+
+elif mode == "Scan QR Code":
     scan_qr_code()
