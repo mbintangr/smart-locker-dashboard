@@ -152,9 +152,7 @@ if mode == "Generate QR Code":
 
             st.image(buf, caption="Generated QR Code")
             
-            # qr_img.save("qr_code.png")
-            with open("qr_code.png", "rb") as file:
-                st.download_button("Download QR Code", file, file_name="qr_code.png")
+            st.download_button("Download QR Code", qr_img)
         else:
             st.warning("Please enter some text.")
 
