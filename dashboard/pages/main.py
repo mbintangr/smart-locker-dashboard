@@ -109,7 +109,7 @@ with st.sidebar:
     st.markdown("## Select Mode")
     mode = st.radio("Choose an option:", ("Read QR Code", "Generate QR Code"))
     st.divider()
-    st.page_link("pages/login.py",label=":material/home: Logout", use_container_width=True)
+    st.page_link("pages/login.py",label=":material/logout: Logout", use_container_width=True)
 
 if mode == "Generate QR Code":
     st.header("🧾 Generate QR Code")

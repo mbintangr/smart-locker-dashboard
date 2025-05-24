@@ -26,12 +26,12 @@ response = requests.request(
 )
 
 
-
 if response.status_code == 200:
     data = response.json()
 
 # Layout
-
+with st.sidebar:
+    st.page_link("pages/login.py",label=":material/logout: Logout", use_container_width=True)
 st.title("Welcome, %s " % st.session_state.user_name)
 st.markdown("## Terima kasih sudah menggunakan jasa locker kami")
 st.divider()
