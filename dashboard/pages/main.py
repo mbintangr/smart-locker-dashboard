@@ -97,56 +97,41 @@ if "pending_code" not in st.session_state:
 @st.fragment
 def scan_qr_code():
     st.header("📷 Scan QR Code via Webcam")
-    if st.session_state.get("scanning", False):
-        cap = cv2.VideoCapture(0)
-        stframe = st.empty()
 
-        while st.session_state.scanning:
-            ret, frame = cap.read()
-            if not ret:
-                st.write("Failed to capture image.")
-                break
+    cap = cv2.VideoCapture(0)
+    stframe = st.empty()
 
-            qr_codes = decode_qr_code(frame)
-            stframe.image(frame, channels="BGR")
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.write("Failed to capture image.")
+            break
 
-            if qr_codes:
-                current_code = qr_codes[0]
-                res = requests.get(
-                    "https://n8n.mbintangr.com/webhook/checkout",
-                    data={"id": current_code},
-                    verify=False
-                )
-                res = res.json()
+        qr_codes = decode_qr_code(frame)
+        stframe.image(frame, channels="BGR")
 
-                if res.get("message") == "Success!":
-                    open_locker()
-                    st.toast("Success! QR Code Valid.", icon="🎉")
-                else:
-                    close_locker()
-                    st.toast("Failed! QR Code Invalid.", icon="🚫")
+        if qr_codes:
+            current_code = qr_codes[0]
+            res = requests.get(
+                "https://n8n.mbintangr.com/webhook/checkout",
+                data={"id": current_code},
+                verify=False
+            )
+            res = res.json()
 
-                # Restart scanning for next user
-                st.session_state.scanning = False  # stop fragment
-                st.session_state.restart_scan = True  # trigger restart
-                break
+            if res.get("message") == "Success!":
+                open_locker()
+                st.toast("Success! QR Code Valid.", icon="🎉")
+            else:
+                close_locker()
+                st.toast("Failed! QR Code Invalid.", icon="🚫")
 
-        cap.release()
-        cv2.destroyAllWindows()
+            # Call rerun immediately after processing
+            st.rerun(scope="fragment")
+            return  # avoid continuing execution after rerun
 
-
-# Outside the fragment, e.g. in main.py or your main Streamlit app logic:
-if "scanning" not in st.session_state:
-    st.session_state.scanning = True
-
-if st.session_state.get("restart_scan", False):
-    st.session_state.restart_scan = False
-    st.session_state.scanning = True  # re-trigger scan
-
-# Always call the fragment if scanning is active
-if st.session_state.scanning:
-    scan_qr_code()
-
+    cap.release()
+    cv2.destroyAllWindows()
 
     # if st.session_state.confirming:
     #     st.info(f"Detected QR Code: `{st.session_state.pending_code}`")
