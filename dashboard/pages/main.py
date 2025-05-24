@@ -152,7 +152,7 @@ if mode == "Generate QR Code":
 
             st.image(buf, caption="Generated QR Code")
             
-            st.download_button("Download QR Code", qr_img)
+            # st.download_button("Download QR Code", qr_img)
         else:
             st.warning("Please enter some text.")
 
