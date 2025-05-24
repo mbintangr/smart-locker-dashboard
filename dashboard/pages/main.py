@@ -84,14 +84,18 @@ def scan_qr_code():
                 data={"id": current_code},
                 verify=False
             )
+            
             res = res.json()
 
             if res.get("message") == "Success!":
                 open_locker(res.get("locker_id"))
                 st.toast("Success! QR Code Valid.", icon="🎉")
             else:
-                close_locker(res.get("locker_id"))
-                st.toast("Failed! QR Code Invalid.", icon="🚫")
+                if res.get("locker_id") == "":
+                    st.toast("Failed! QR Code Invalid.", icon="🚫")
+                else:
+                    close_locker(res.get("locker_id"))
+                    st.toast("Failed! QR Code not found.", icon="🚫")
                 
             st.rerun()
 
@@ -106,8 +110,6 @@ with st.sidebar:
     mode = st.radio("Choose an option:", ("Read QR Code", "Generate QR Code"))
     st.divider()
     st.page_link("pages/login.py",label=":material/home: Logout", use_container_width=True)
-
-
 
 if mode == "Generate QR Code":
     st.header("🧾 Generate QR Code")
