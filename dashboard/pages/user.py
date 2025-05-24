@@ -29,32 +29,33 @@ response = requests.request(
 
 if response.status_code == 200:
     data = response.json()
-    id_locker = data[0].get("locker_id")
-
 
 # Layout
 
 st.title("Welcome, %s " % st.session_state.user_name)
 st.markdown("## Terima kasih sudah menggunakan jasa locker kami")
 st.divider()
-col1, col2, col3 = st.columns([3, 2, 2], gap="large")
+st.markdown("## Berikut adalah QR Code locker Anda")
+st.markdown("Harap simpan QRCode dengan baik dengan cara SS atau klik button Download QRCode")
+st.markdown("Berikut adalah Loker yang tersedia")
 
-with col1:
-    st.markdown("## Berikut adalah QR Code locker Anda")
-    st.markdown("Harap simpan QRCode dengan baik dengan cara SS atau klik button Download QRCode")
-    st.markdown ("Locker kamu adalah Locker Nomor %d" % id_locker)
+cols = st.columns(5, gap="large",vertical_alignment="center")  # Ubah jadi 4 atau 5 jika ingin lebih rapat
 
-with col2:
-    if isinstance(data, list) and len(data) > 0:
-        id_value = data[0].get("id")
+for idx, item in enumerate(data):
+    id_value = item.get("id")
+    id_locker = item.get("locker_id")
 
-    if id_value:
-        # Generate QR dari id
-        qr_img = qrcode.make(str(id_value))
-        buf = io.BytesIO()
-        qr_img.save(buf, format="PNG")
-        buf.seek(0)
+    qr_img = qrcode.make(str(id_value))
+    buf = io.BytesIO()
+    qr_img.save(buf, format="PNG")
+    buf.seek(0)
 
-        st.image(buf, caption=f"QR Code untuk Locker: {id_locker} dengan ID {id_value}")
-    else:
-        st.error("ID tidak ditemukan dalam response.")
+    col = cols[idx % 2]
+    with col:
+        with st.container(border=True):
+            st.image(buf, caption=f"QR Code Locker: {id_locker}", width=265)
+            st.caption(f"ID: {id_value}")
+
+    if (idx + 1) % 2 == 0 and (idx + 1) < len(data):
+        cols = st.columns(3)
+        st.markdown("#")
