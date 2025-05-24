@@ -100,12 +100,6 @@ def scan_qr_code():
 
     st.header("📷 Scan QR Code via Webcam")
 
-    # If flagged for rerun, do it immediately (only works in a rerun context)
-    if st.session_state.get("fragment_rerun_pending"):
-        st.session_state.fragment_rerun_pending = False
-        st.rerun(scope="fragment")
-        return
-
     cap = cv2.VideoCapture(0)
     stframe = st.empty()
 
@@ -133,10 +127,8 @@ def scan_qr_code():
             else:
                 close_locker()
                 st.toast("Failed! QR Code Invalid.", icon="🚫")
-
-            # Set flag to rerun the fragment
-            st.session_state.fragment_rerun_pending = True
-            return  # End this run cleanly
+                
+            st.rerun()
 
     cap.release()
     cv2.destroyAllWindows()
