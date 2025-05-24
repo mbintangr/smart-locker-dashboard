@@ -40,7 +40,6 @@ st.title("Welcome, %s " % st.session_state.user_name)
 st.markdown("Terima kasih sudah menggunakan jasa locker kami 🙏🏻")
 # st.divider()
 
-cols = st.columns(5, gap="large",vertical_alignment="center")  # Ubah jadi 4 atau 5 jika ingin lebih rapat
 
 for idx, item in enumerate(data):
     id_value = item.get("id")
@@ -48,7 +47,8 @@ for idx, item in enumerate(data):
     if id_value is not None:
         st.markdown("## Berikut adalah QR Code locker Anda")
         st.markdown("Harap simpan QR Code dengan baik dengan cara Screenshot")
-        st.markdown("Berikut adalah Loker yang tersedia")
+        st.markdown("Berikut adalah Loker yang tersedia:")
+        cols = st.columns(5, gap="large",vertical_alignment="center")  # Ubah jadi 4 atau 5 jika ingin lebih rapat
         
         qr_img = qrcode.make(str(id_value))
         buf = io.BytesIO()

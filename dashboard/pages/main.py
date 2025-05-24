@@ -152,10 +152,11 @@ if mode == "Register Locker":
                 data={"collector": collector, "locker_id": selected_locker},
                 verify=False
             )
+            st.toast("Success! Locker Registered.", icon="🎉")
+            st.rerun()
         else:
             st.error("Please fill in all fields.")
         
-        st.rerun()
 
 elif mode == "Scan QR Code":
     scan_qr_code()
