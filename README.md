@@ -2,6 +2,12 @@
 
 GuaLock is an innovative smart locker system that provides secure, convenient, and modern storage solutions using QR code authentication technology. Built with Streamlit and designed for IoT integration, GuaLock offers a seamless user experience for managing personal storage lockers.
 
+## 🎥 Demo
+
+Watch the GuaLock system in action! See how the smart locker dashboard works with real-time QR code scanning, user authentication, and IoT hardware integration.
+
+**[📹 Watch Demo Video](https://drive.google.com/file/d/1yaZdNN6E7R1XnzFq2fuweSTTk28Fpjup/view?usp=sharing)**
+
 ## 🚀 Features
 
 ### Core Functionality
